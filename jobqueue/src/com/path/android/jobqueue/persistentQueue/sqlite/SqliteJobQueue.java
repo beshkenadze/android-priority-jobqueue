@@ -23,13 +23,13 @@ import java.util.Collection;
  * Persistent Job Queue that keeps its data in an sqlite database.
  */
 public class SqliteJobQueue implements JobQueue {
-    DbOpenHelper dbOpenHelper;
+    protected DbOpenHelper dbOpenHelper;
     private final long sessionId;
-    SQLiteDatabase db;
-    SqlHelper sqlHelper;
-    JobSerializer jobSerializer;
-    QueryCache readyJobsQueryCache;
-    QueryCache nextJobsQueryCache;
+    protected SQLiteDatabase db;
+    protected SqlHelper sqlHelper;
+    protected JobSerializer jobSerializer;
+    protected QueryCache readyJobsQueryCache;
+    protected QueryCache nextJobsQueryCache;
 
     /**
      * @param context application context
