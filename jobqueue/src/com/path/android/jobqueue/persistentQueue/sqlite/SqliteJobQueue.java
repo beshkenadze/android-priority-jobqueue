@@ -63,7 +63,7 @@ public class SqliteJobQueue implements JobQueue {
         return id;
     }
 
-    private void bindValues(SQLiteStatement stmt, JobHolder jobHolder) {
+    protected void bindValues(SQLiteStatement stmt, JobHolder jobHolder) {
         if (jobHolder.getId() != null) {
             stmt.bindLong(DbOpenHelper.ID_COLUMN.columnIndex + 1, jobHolder.getId());
         }
@@ -114,7 +114,7 @@ public class SqliteJobQueue implements JobQueue {
         delete(jobHolder.getId());
     }
 
-    private void delete(Long id) {
+    protected void delete(Long id) {
         SQLiteStatement stmt = sqlHelper.getDeleteStatement();
         synchronized (stmt) {
             stmt.clearBindings();
@@ -214,7 +214,7 @@ public class SqliteJobQueue implements JobQueue {
         }
     }
 
-    private String createReadyJobWhereSql(boolean hasNetwork, Collection<String> excludeGroups, boolean groupByRunningGroup) {
+    protected String createReadyJobWhereSql(boolean hasNetwork, Collection<String> excludeGroups, boolean groupByRunningGroup) {
         String where = DbOpenHelper.RUNNING_SESSION_ID_COLUMN.columnName + " != ? "
                 + " AND " + DbOpenHelper.DELAY_UNTIL_NS_COLUMN.columnName + " <= ? ";
         if(hasNetwork == false) {
@@ -236,7 +236,7 @@ public class SqliteJobQueue implements JobQueue {
         return where;
     }
 
-    private static String joinStrings(String glue, Collection<String> strings) {
+    protected static String joinStrings(String glue, Collection<String> strings) {
         StringBuilder builder = new StringBuilder();
         for(String str : strings) {
             if(builder.length() != 0) {
@@ -275,7 +275,7 @@ public class SqliteJobQueue implements JobQueue {
         nextJobsQueryCache.clear();
     }
 
-    private void onJobFetchedForRunning(JobHolder jobHolder) {
+    protected void onJobFetchedForRunning(JobHolder jobHolder) {
         SQLiteStatement stmt = sqlHelper.getOnJobFetchedForRunningStatement();
         jobHolder.setRunCount(jobHolder.getRunCount() + 1);
         jobHolder.setRunningSessionId(sessionId);
@@ -288,7 +288,7 @@ public class SqliteJobQueue implements JobQueue {
         }
     }
 
-    private JobHolder createJobHolderFromCursor(Cursor cursor) throws InvalidBaseJobException {
+    protected JobHolder createJobHolderFromCursor(Cursor cursor) throws InvalidBaseJobException {
         BaseJob job = safeDeserialize(cursor.getBlob(DbOpenHelper.BASE_JOB_COLUMN.columnIndex));
         if (job == null) {
             throw new InvalidBaseJobException();
@@ -306,7 +306,7 @@ public class SqliteJobQueue implements JobQueue {
 
     }
 
-    private BaseJob safeDeserialize(byte[] bytes) {
+    protected BaseJob safeDeserialize(byte[] bytes) {
         try {
             return jobSerializer.deserialize(bytes);
         } catch (Throwable t) {
@@ -315,11 +315,11 @@ public class SqliteJobQueue implements JobQueue {
         return null;
     }
 
-    private byte[] getSerializeBaseJob(JobHolder jobHolder) {
+    protected byte[] getSerializeBaseJob(JobHolder jobHolder) {
         return safeSerialize(jobHolder.getBaseJob());
     }
 
-    private byte[] safeSerialize(Object object) {
+    protected byte[] safeSerialize(Object object) {
         try {
             return jobSerializer.serialize(object);
         } catch (Throwable t) {
@@ -328,11 +328,11 @@ public class SqliteJobQueue implements JobQueue {
         return null;
     }
 
-    private static class InvalidBaseJobException extends Exception {
+    protected static class InvalidBaseJobException extends Exception {
 
     }
 
-    public static class JavaSerializer implements JobSerializer {
+    protected static class JavaSerializer implements JobSerializer {
 
         @Override
         public byte[] serialize(Object object) throws IOException {
